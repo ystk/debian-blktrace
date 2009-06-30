@@ -1,0 +1,16 @@
+--- foo/btrace	2009-05-11 14:00:10.000000000 +0200
++++ bar/btrace	2009-06-29 17:11:18.508606950 +0200
+@@ -9,7 +9,6 @@
+ TRACEOPTS=""
+ PARSEOPTS="-b100000"
+ USAGE="Usage: btrace [-s] [-t] [-w N] [-n N] [-b N] [-a <trace>...] [-r <dbg mnt>] <dev>..."
+-DIRNAME=`dirname $0`
+ 
+ while getopts "a:w:n:b:r:sthv" c
+ do
+@@ -35,4 +34,4 @@
+ 	exit 2
+ fi
+ 
+-${DIRNAME}/blktrace ${TRACEOPTS} -o- $@ | ${DIRNAME}/blkparse ${PARSEOPTS} -i-
++/usr/sbin/blktrace ${TRACEOPTS} -o- $@ | /usr/bin/blkparse ${PARSEOPTS} -i-

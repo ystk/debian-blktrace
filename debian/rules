@@ -1,0 +1,152 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE=1
+
+# These are used for cross-compiling and for saving the configure script
+# from having to guess our platform (since we know it already)
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE  )
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE )
+DEB_BUILD_ARCH_OS   ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH_OS  )
+ARCH                := $(shell dpkg-architecture -qDEB_BUILD_ARCH     )
+
+
+CFLAGS = -Wall -Wextra -Wno-shadow -g 
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+  CFLAGS += -O0
+else
+  CFLAGS += -O2
+endif
+export CFLAGS
+
+TOPDIR:=$(shell pwd)
+
+PKGNAME    :=$(word 2,$(shell dpkg-parsechangelog | grep ^Source  ) )
+FULLVERSION:=$(word 2,$(shell dpkg-parsechangelog | grep ^Version ) )
+UPSTREAMVER:=$(shell echo $(FULLVERSION) | sed 's/-[0-9.]\+$$//' | sed 's/^0~//' )
+
+BUILDDIR    :=build/
+
+
+checklinux: check-stamp
+check-stamp:
+ifeq ($(DEB_BUILD_ARCH_OS),linux)
+	# Building for a Linux-type OS, everything's fine
+	#
+	# variables are:
+	# TOPDIR       $(TOPDIR)
+	# PKGNAME      $(PKGNAME)
+	# FULLVERSION  $(FULLVERSION)
+	# UPSTREAMVER  $(UPSTREAMVER)
+	# SRCARCHIVE   $(SRCARCHIVE)
+	# UNPACKDIR    $(UNPACKDIR)
+	# BUILDDIRBASE $(BUILDDIRBASE)
+	# BUILDDIR     $(BUILDDIR)
+	touch check-stamp
+else
+	####################################################
+	## Oops, it seems you are trying to build blkutils
+	## for a non-Linux OS `$(DEB_BUILD_ARCH_OS)'.
+	## This is not supported.
+	## Please file a bug if you think this is wrong.
+	####################################################
+	false
+endif
+
+# not really unpack, but just links everything in build/
+unpack: $(BUILDDIR)/COPYING
+$(BUILDDIR)/COPYING:
+	# unpack
+	[ -d "$(BUILDDIR)" ] || mkdir "$(BUILDDIR)"
+	/bin/sh debian/lndir.sh . $(BUILDDIR) 
+	rm -r $(BUILDDIR)/build
+	rm -r $(BUILDDIR)/debian
+	
+build: build-stamp
+build-stamp: check-stamp $(BUILDDIR)/COPYING
+	# VERSION=$(VERSION)
+	dh_testdir
+
+	# patch
+	for p in $(wildcard $(TOPDIR)/debian/patches/*.patch ); do \
+		echo "# applying patch $$p"; \
+		cd $(BUILDDIR) && patch -p1 < $$p  && \
+		echo "# OK" && \
+		cd $(TOPDIR); \
+	done
+
+	# build 
+	cd $(BUILDDIR) && make CFLAGS="$(CFLAGS)" all docs 
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	-rm -rf $(BUILDDIR)
+	-rm -f *-stamp
+	dh_clean
+
+install: build-stamp install-stamp
+install-stamp:
+	dh_testdir
+	
+	dh_clean -k
+
+	dh_installdirs
+
+	cd $(BUILDDIR) && \
+	$(MAKE) install \
+		prefix=/usr \
+		mandir=\$${prefix}/share/man \
+		DESTDIR=$(TOPDIR)/debian/$(PKGNAME)
+
+	# install the docs
+	install -m0644 $(BUILDDIR)/doc/blktrace.pdf \
+		$(TOPDIR)/debian/$(PKGNAME)/usr/share/doc/blktrace
+	install -m0644 $(BUILDDIR)/btt/doc/btt.pdf \
+		$(TOPDIR)/debian/$(PKGNAME)/usr/share/doc/blktrace
+	install -m0644 $(BUILDDIR)/btreplay/doc/btreplay.pdf \
+		$(TOPDIR)/debian/$(PKGNAME)/usr/share/doc/blktrace
+
+	# install an upstream changelog
+	# ! We're not built from a git snapsht atm !
+	#git log > $(TOPDIR)/debian/$(PKGNAME)/usr/share/doc/blktrace/changelog
+	#chmod 644 $(TOPDIR)/debian/$(PKGNAME)/usr/share/doc/blktrace/changelog
+
+	# move admin-only stuff to /usr/sbin
+	cd $(TOPDIR)/debian/$(PKGNAME) && \
+		mv usr/bin/btrace    usr/sbin/ && \
+		mv usr/bin/blktrace  usr/sbin/ && \
+		mv usr/bin/btreplay  usr/sbin/ && \
+		mv usr/bin/btrecord  usr/sbin/ 
+
+	# fix name of bno_plot
+	cd $(TOPDIR)/debian/$(PKGNAME) && \
+		mv usr/bin/bno_plot.py usr/bin/bno_plot
+
+	touch install-stamp
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installinit --name=mountdebugfs --no-restart-on-upgrade \
+		--update-rcd-params="start 90 S . stop 21 0 6 ."
+	dh_link
+	dh_strip
+	dh_compress -X.pdf
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install unpack checklinux
