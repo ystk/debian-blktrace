@@ -1,0 +1,138 @@
+#! /bin/sh
+# blktrace    Mount debugfs on boot
+
+### BEGIN INIT INFO
+# Provides:          mountdebugfs
+# Required-Start:    $local_fs $remote_fs mountkernfs
+# Required-Stop:     $local_fs $remote_fs
+# Should-Start:
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Mount debugfs on /sys/kernel/debug
+# Description: Mount debugfs on /sys/kernel/debug
+### END INIT INFO
+
+# load LSB functions (log_success_msg etc)
+. /lib/lsb/init-functions
+
+# main mount point
+mount_dir=/sys/kernel/debug
+
+# check if /proc/mounts exists
+if ! [ -r /proc/mounts ]
+then
+	log_failure_msg "Failed! Couldn't read /proc/mounts."
+	exit 1
+fi
+
+# no need to do anything if blktrace isn't installed
+if ! [ -x /usr/sbin/blktrace ]
+then
+	exit 0
+fi
+
+# find where (if anywhere) debugfs is mounted
+mountpoints=$( 
+	awk '$3 == "debugfs" { print $2 }' < /proc/mounts
+)
+
+mount_debugfs ()
+{
+	# check if any of the current mountpoints is /sys/kernel/debug
+	found_syskerneldebug=0
+	for d in $mountpoints
+	do
+		if [ $d = $mount_dir ]
+		then
+			found_syskerneldebug=1
+		fi
+	done
+	if [ $found_syskerneldebug -eq 1 ]
+	then
+		log_success_msg "Debugfs is already mounted on $mount_dir; nothing to do";
+		exit 0
+	fi
+
+	# check that debugfs is supported by the kernel
+	if ! [ $(  awk -F\\t '$2 == "debugfs" { print $2 }' < /proc/filesystems ) ]
+	then
+		log_failure_msg "Can't mount debugfs: not supported by your kernel"
+		exit 0
+	fi
+
+	# check that /sys/kernel exists
+	the_dir=$( dirname $mount_dir )
+	if ! [ -d $the_dir ]
+	then
+		log_failure_msg "Can't mount debugfs on $mountdir: $the_dir doesn't exist."
+		exit 1
+	fi
+
+	# do the actual mounting
+	if mount -t debugfs debugfs $mount_dir
+	then
+		log_success_msg "Mounted debugfs on $mount_dir"
+	else
+		log_failure_msg "Couldn't mount debugfs on $mount_dir"
+		exit 1
+	fi
+
+}
+
+umount_debugfs ()
+{
+	if  [ $mountpoints ]
+	then
+		for d in $mountpoints
+		do
+			if [ $d = $mount_dir ]
+			then
+				if umount $d
+				then
+					log_success_msg "Unmounted debugfs from $d"
+				else 
+					log_failure_msg "Couln't unmount debugfs from $d"
+				fi
+			fi
+		done
+	else
+		log_success_msg "Debugfs is not mounted; nothing to do."
+	fi
+}
+
+show_status ()
+{
+	if  [ $mountpoints ]
+	then
+		for d in $mountpoints
+		do
+			log_success_msg "Debugfs is mounted on $d"
+		done
+	else
+		log_success_msg "Debugfs is not mounted"
+	fi
+}
+
+
+case "$1" in
+	start)
+		mount_debugfs
+		;;
+	stop)
+		umount_debugfs
+		;;
+	restart|reload|force-reload)
+		umount_debugfs
+		exec $0 start
+		;;
+	status)
+		show_status
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|reload|force-reload|status}"
+		exit 1
+		;;
+esac
+
+exit 0

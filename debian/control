@@ -1,0 +1,39 @@
+Source: blktrace
+Section: utils
+Priority: extra
+Maintainer: Bas Zoetekouw <bas@debian.org>
+Uploaders: Dmitry Smirnov <onlyjob@debian.org>
+Build-Depends:
+    debhelper (>= 9),
+    ghostscript,
+    libaio-dev,
+    texlive-latex-base,
+    texlive-latex-extra
+Standards-Version: 3.9.4
+Homepage: http://brick.kernel.dk/snaps/
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/blktrace.git
+Vcs-Git: git://anonscm.debian.org/collab-maint/blktrace.git
+
+Package: blktrace
+Architecture: linux-any
+Depends: ${misc:Depends},
+    ${shlibs:Depends},
+    python,
+    lsb-base
+Suggests: gnuplot-x11
+Description: utilities for block layer IO tracing
+ blktrace is a block layer IO tracing mechanism which provides detailed
+ information about request queue operations up to user space. There are
+ three major components that are provided:
+ .
+ blktrace: A utility which transfers event traces from the kernel
+ into either long-term on-disk storage, or provides direct formatted
+ output (via blkparse).
+ .
+ blkparse: A utility which formats events stored in files, or when
+ run in live mode directly outputs data collected by blktrace.
+ .
+ Running blktrace requires a patch to the Linux kernel which includes the
+ kernel event logging interfaces, and patches to areas within the block
+ layer to emit event traces.  These patches have been included in the main
+ Linux kernel since 2.6.17-rc1, and the default Debian kernel since 2.6.23.

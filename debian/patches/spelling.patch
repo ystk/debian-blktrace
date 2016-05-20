@@ -1,0 +1,73 @@
+Last-Update: 2012-12-23
+Author: Dmitry Smirnov <onlyjob@member.fsf.org>
+Forwarded: no
+Description: spelling and hyphen corrections.
+
+--- a/blkiomon.c
++++ b/blkiomon.c
+@@ -472,13 +472,13 @@
+ 			break;
+ 		}
+ 
+ 		if (data_is_native == -1 && check_data_endianness(bit->magic)) {
+-			fprintf(stderr, "blkiomon: endianess problem\n");
++			fprintf(stderr, "blkiomon: endianness problem\n");
+ 			break;
+ 		}
+ 
+-		/* endianess */
++		/* endianness */
+ 		trace_to_cpu(bit);
+ 		if (verify_trace(bit)) {
+ 			fprintf(stderr, "blkiomon: bad trace\n");
+ 			break;
+--- a/doc/blkiomon.8
++++ b/doc/blkiomon.8
+@@ -99,9 +99,9 @@
+ .SH EXAMPLES
+ To get I/O statistics for /dev/sdw every 10 seconds for a period of one hour,
+ use the following command:
+ 
+-    % blktrace /dev/sdw -a issue -a complete -w 3600 -o - | blkiomon -I 10 -h -
++    % blktrace /dev/sdw \-a issue \-a complete \-w 3600 \-o \- | blkiomon \-I 10 \-h \-
+ 
+ 
+ .SH AUTHORS
+ blkiomon and this man page were written by Martin Peschke.
+--- a/doc/blkparse.1
++++ b/doc/blkparse.1
+@@ -242,9 +242,9 @@
+ Same as the back merge, except this i/o ends where a previously inserted
+ requests starts.
+ 
+ .HP 4
+-\fBM --front or back merge\fR
++\fBM -- front or back merge\fR
+ One of the above
+ 
+ .HP 4
+ \fBM -- front or back merge\fR
+--- a/doc/blktrace.8
++++ b/doc/blktrace.8
+@@ -149,9 +149,9 @@
+ .br
+ \-\-output=\fIbasename\fR
+ .RS
+ Specifies base name for input files. Default is device.blktrace.cpu.
+-Specifying -o - runs in live mode with blkparse (writing data to standard out).
++Specifying \-o \- runs in live mode with blkparse (writing data to standard out).
+ .RE
+ 
+ \-D \fIdir\fR
+ .br
+@@ -159,9 +159,9 @@
+ .RS
+ Prepend \fIfile\fR to output file name(s)
+ 
+ This only works when supplying a single device, or when piping the output
+-via "-o -" with multiple devices.
++via "\-o \-" with multiple devices.
+ .RE
+ 
+ \-r \fIrel-path\fR
+ .br

@@ -1,0 +1,24 @@
+Last-Update: 2009-06-29
+Author: Bas Zoetekouw <bas@debian.org>
+Forwarded: not-needed
+Description: correct (Debian-specific) path to blktrace.
+
+--- a/btrace
++++ b/btrace
+@@ -8,9 +8,8 @@
+ 
+ TRACEOPTS=""
+ PARSEOPTS="-b100000"
+ USAGE="Usage: btrace [-s] [-t] [-w N] [-n N] [-b N] [-a <trace>...] [-r <dbg mnt>] <dev>..."
+-DIRNAME=`dirname $0`
+ 
+ while getopts "a:w:n:b:r:sthv" c
+ do
+ 	case $c in
+@@ -34,5 +33,5 @@
+ 	echo $USAGE 1>&2
+ 	exit 2
+ fi
+ 
+-${DIRNAME}/blktrace ${TRACEOPTS} -o- $@ | ${DIRNAME}/blkparse ${PARSEOPTS} -i-
++/usr/sbin/blktrace ${TRACEOPTS} -o- $@ | /usr/bin/blkparse ${PARSEOPTS} -i-

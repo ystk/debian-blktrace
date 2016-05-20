@@ -1,0 +1,57 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE=1
+
+#DEB_BUILD_ARCH_OS   ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH_OS  )
+
+CFLAGS += -Wall -Wextra -Wno-shadow -g
+
+PKGNAME    :=$(word 2,$(shell dpkg-parsechangelog | grep ^Source  ) )
+FULLVERSION:=$(word 2,$(shell dpkg-parsechangelog | grep ^Version ) )
+UPSTREAMVER:=$(shell echo $(FULLVERSION) | sed 's/-[0-9.]\+$$//' | sed 's/^0~//' )
+
+%:
+	dh $@
+
+override_dh_auto_build:
+ifeq ($(DEB_BUILD_ARCH_OS),linux)
+	# Building for a Linux-type OS, everything's fine
+	#
+	# variables are:
+	# PKGNAME      $(PKGNAME)
+	# FULLVERSION  $(FULLVERSION)
+	# UPSTREAMVER  $(UPSTREAMVER)
+else
+	####################################################
+	## Oops, it seems you are trying to build blkutils
+	## for a non-Linux OS `$(DEB_BUILD_ARCH_OS)'.
+	## This is not supported.
+	## Please file a bug if you think this is wrong.
+	####################################################
+	false
+endif
+	$(MAKE) CFLAGS="$(CPPFLAGS) $(CFLAGS) $(LDFLAGS)" all docs
+
+override_dh_auto_install:
+	$(MAKE) install \
+		prefix=/usr \
+		mandir=\$${prefix}/share/man \
+		DESTDIR=$(CURDIR)/debian/$(PKGNAME)
+	# move admin-only stuff to /usr/sbin
+	cd $(CURDIR)/debian/$(PKGNAME) && \
+		mv usr/bin/btrace    usr/sbin/ && \
+		mv usr/bin/blktrace  usr/sbin/ && \
+		mv usr/bin/btreplay  usr/sbin/ && \
+		mv usr/bin/btrecord  usr/sbin/ 
+	# fix name of bno_plot
+	cd $(CURDIR)/debian/$(PKGNAME) && \
+		mv usr/bin/bno_plot.py usr/bin/bno_plot
+
+override_dh_installinit:
+	dh_installinit --name=mountdebugfs --no-restart-on-upgrade
+
+override_dh_compress:
+	dh_compress -X.pdf
+
+override_dh_builddeb:
+	dh_builddeb -- -Zxz

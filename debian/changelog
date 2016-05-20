@@ -1,0 +1,207 @@
+blktrace (1.0.5-1) unstable; urgency=low
+
+  * New upstream release [February 2012].
+  * Copyright to copyright-format-1.0 & update.
+  * Source to 3.0 (quilt) format + xz compression.
+    - dropped "patch" from Build-Depends.
+  * Debhelper & compat to version 9; standards to 3.9.4.
+  * Updated runlevels (Closes: #541867) thanks, Petter Reinholdtsen.
+  * mountdebugfs.init:
+    + added LSB Description.
+    + added LSB dependency "$remote_fs".
+    + updated runlevels; make stop in runlevel 1 explicit.
+  * Patchworks:
+    - Dropped 20_no-add-needed.patch (applied-upstream).
+    + New patch to fix spelling and hyphens.
+    + 10_btrace_paths.patch is updated, DEP-3 headers added.
+  * Simplified debian/rules.
+  * Removed obsolete entries from debian/dirs.
+  * Build with default Hardening flags.
+  * xz compression for binary package.
+  * Architecture changed to "linux-any".
+  * Install upstream README file.
+  * Added myself to Uploaders.
+  * Added VCS links to new collab-maint repository.
+
+ -- Dmitry Smirnov <onlyjob@debian.org>  Sun, 05 May 2013 22:42:58 +1000
+
+blktrace (1.0.1-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Fix "FTBFS with binutils-gold": add patch from Ubuntu / Ilya Barygin:
+    - New patch 20_no-add-needed.patch: add missing library to fix linking
+      failure
+    (Closes: #553968)
+
+ -- gregor herrmann <gregoa@debian.org>  Sat, 17 Dec 2011 15:40:06 +0100
+
+blktrace (1.0.1-2) unstable; urgency=low
+
+  * Move package from optional to extras because of its dependency on libaoi
+
+ -- Bas Zoetekouw <bas@debian.org>  Tue, 30 Jun 2009 19:01:26 +0200
+
+blktrace (1.0.1-1) unstable; urgency=low
+
+  * New upstream release
+    - patches 16_bnoplot_man.patch, 17_btrecord_linking.patch, and
+      18_man_section.patch have been merged upstream.
+  * This is a real release, not a git snapshot, we we're not calling git-log
+    at build any more, so remove build-dep on git-core (closes: #516062)
+  * Added an upstream changelog (git log output)
+  * Bumped Standards-version to 3.8.2:
+    - Added upstream Homepage to control file
+  * Replace build-dep on gs-gpl|gs by ghostscript
+
+ -- Bas Zoetekouw <bas@debian.org>  Mon, 29 Jun 2009 16:47:14 +0200
+
+blktrace (0.99.3+git-20080213182518-1) unstable; urgency=low
+
+  * New upstream release:
+    - Added man pages for btreplay and btrecord 
+      [obsoletes 15_btreplay_man.patch]
+    - Separated out g/i/m trace handling and DM-device calculations
+    - Fix Q counts during requeue and merges
+    - Fixed excess bucket information for unplug histograms
+    - Fixed double inforation about timeouts
+    - Added new IOs per unplug table
+    - Added bno_plot plot utility
+    - Fix iostat interval default
+    - Fix missing cleanup calls
+    - Fixed IOPs in btt left over at end of run
+  * Renamed bno_plot.py to bno_plot
+  * Added suggests on gnuplot-x11 (bno_plot needs it)
+  * Added suggests on python (bno_plot needs it)
+  * Added man page for bno_plot 
+    [16_bnoplot_man.patch]
+  * Added information about which Debian kernels have CONFIG_BLK_DEV_IO_TRACE
+    set to the long description.
+  * Automatically mount debugfs on boot (add init script)
+  * Depend on lsb-base (for init script functions)
+  * Don't link btrecord against libaio and librt
+  * Increase Standards-Version to 3.7.3 (no changes necessary)
+
+
+ -- Bas Zoetekouw <bas@debian.org>  Fri, 22 Feb 2008 11:08:38 +0100
+
+blktrace (0.99.3+git-20071207142532-1) unstable; urgency=low
+
+  * New upstream release:
+      - Fix compilation on m68k 
+        [obsoletes 13_m68k_barrier.patch]
+      - Sync btt manpages with TeX docs
+        [obsoletes 14_btt_man.patch]
+      - Add btrecord and btreplay programs
+      - Fix warnings from gcc-4.2.1
+      - Fix several segfaults
+      - Added O_NOATIME to replay file
+      - Fixed REMAP to update Q2A & fixed #Q calculations
+      - Added active requests at Q information.
+      - memset() must be done after NULL check
+      - Added in Q2D histograms (requires -A)
+      - Remove strange make dependency on "-lpthread"
+  * Follow upstream version numbering
+  * Updated debian/watch to follow new version numbering
+  * Added manpages for btrecord and btreplay
+    [15_btreplay_man.patch]
+  * Mention enabling of CONFIG_BLK_DEV_IO_TRACE in linux-2.6/2.6.23-1 in
+    README.Debian
+  * Remove obsolete build-dependency on linux-kernel-headers
+  * Add build-dependency on libaio-dev
+
+ -- Bas Zoetekouw <bas@debian.org>  Sat, 08 Dec 2007 13:32:55 +0100
+
+blktrace (0~git-20070910192508-1) unstable; urgency=low
+
+  * New upstream release:
+    - Added man pages
+    - Misc minor fixes to Makefiles
+      [obsoletes 12_Makefile_INCS.patch]
+    - Major revamping of btt: 
+      - major performance boost 
+      - added Q2Q seek distance feature
+  * Merge changes in btt man page from version 0~git-20070718142546-1
+    [14_btt_man.patch]
+  * Change compiler flags to "-Wall -Wextra -Wno-shadow"
+  * Fix installation path for man pages
+
+ -- Bas Zoetekouw <bas@debian.org>  Sat, 29 Sep 2007 18:43:26 +0200
+
+blktrace (0~git-20070718142546-2) unstable; urgency=low
+
+  * Fix detection of m68k in barrier.h [13_m68k_barrier.patch] 
+
+ -- Bas Zoetekouw <bas@debian.org>  Sat, 04 Aug 2007 12:03:44 +0200
+
+blktrace (0~git-20070718142546-1) unstable; urgency=low
+
+  * New upstream release:
+    - Added store barrier defines for a bunch of archs
+    - Fixed several memleaks
+    - Added seek absolute option
+    - Added block number dumping
+    - Output combined seeks in addition to read and write seeks
+    - Added in unplug IO count histogram
+    - Added-r support for btrace
+    - Fix crash with '-' stdin input
+    - Fix queued vs dispatch numbers
+    - Account size of merges
+  * Remove 11_barrier_wmb.patch, which was merged upstream
+  * Install an upstream changelog (and build-depend on git-core to create it)
+  * Fixed btt man page wrt changes in upstream source
+  * Fixed debian-watch to not trigger on blktrace-git-latest.tar.gz (for real,
+    this time)
+  * Fixed the Makesfile for btt to work with externally set $CFLAGS
+    (12_Makefile_INCS.patch)
+  * Include the btt users guide btt.pdf
+  * Don't compress included pdfs
+  * Remove dependency on tetex-bin and added dependencies on
+    texlive-latex-extra and gs-gpl|gs to fix the doc building
+
+ -- Bas Zoetekouw <bas@debian.org>  Sun, 22 Jul 2007 13:49:41 +0200
+
+blktrace (0~git-20070306202522-1) unstable; urgency=low
+
+  * New upstream release
+  * Fixed man page wrt changes in upstream source and fix spelling errors
+  * Fixed debian-watch to not trigger on blktrace-git-latest.tar.gz
+  * Upload to unstable, as the freeze is over
+
+ -- Bas Zoetekouw <bas@debian.org>  Fri, 06 Apr 2007 15:20:22 +0200
+
+blktrace (0~git-20061221162513-3) experimental; urgency=low
+
+  * New fix for the store_barier() issue; we are now using our own header with
+    just the wmb() macros copied from the kernel source.
+    Thanks to p2-mate and pbrook for helping me fix this!
+    (closes: #406004, #406821)
+  * Fixed bashism in debian/rules
+
+ -- Bas Zoetekouw <bas@debian.org>  Mon, 29 Jan 2007 22:08:53 +0100
+
+blktrace (0~git-20061221162513-2) experimental; urgency=low
+
+  * Fixed a typo in the description (Thanks to Loïc for noticing!)
+    (closes: #405935)
+  * Rather than defining our own store_barrier() for each architecture, just
+    use wmb() from <asm/system.h>.  This fixes build problems on lots of
+    architectures (I hope).
+    (closes: #406004)
+  * Added Build-depends on patch
+  * Fix applying of pacthes in debian/rules.  This would fail if there was
+    more than 1 patch present
+
+ -- Bas Zoetekouw <bas@debian.org>  Sat, 13 Jan 2007 16:00:03 +0100
+
+blktrace (0~git-20061221162513-1) experimental; urgency=low
+
+  * Initial release (closes: #402076)
+  * Uploading to experimental because of the freeze; this package is not meant
+    for etch.
+
+ -- Bas Zoetekouw <bas@debian.org>  Sat, 27 Dec 2006 16:53:39 +0100
+
+Local variables:
+mode: debian-changelog
+End:
+# vim:ts=8:sw=4:expandtab:

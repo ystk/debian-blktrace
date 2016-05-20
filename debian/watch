@@ -1,0 +1,5 @@
+version=3
+opts=dversionmangle=s/^[0-9.]+\+// \
+http://brick.kernel.dk/snaps/ \
+	blktrace-((?!git-latest).+?)\.tar\.gz \
+	debian
