@@ -1,3 +1,9 @@
+blktrace (1.0.5-1+deb8u1) jessie; urgency=high
+
+  * Fix buffer overflow in btt (CVE-2018-10689) (Closes: #897695)
+
+ -- Bas Zoetekouw <bas@debian.org>  Fri, 18 May 2018 15:47:57 +0200
+
 blktrace (1.0.5-1) unstable; urgency=low
 
   * New upstream release [February 2012].
